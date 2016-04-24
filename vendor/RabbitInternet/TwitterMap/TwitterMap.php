@@ -89,9 +89,8 @@ class TwitterMap
         } else {
             $city_name = $address;
         };
-        print $this->lat.','.$this->long.','.$this->twitter_radius;
-        $response = $this->twitter->search->tweets($city_name,array('count'=>$this->twitter_count,'geocode'=>$this->lat.','.$this->long.','.$this->twitter_radius+',')); 
-        // Third comma added to geocode parameter above as the ZendService\Twitter library is broken and throws an error if you just use lat,long,raduis.
+
+        $response = $this->twitter->search->tweets($city_name,array('count'=>$this->twitter_count,'geocode'=>$this->lat.','.$this->long.','.$this->twitter_radius)); 
     
         $markers = array();
         foreach ($response->toValue()->statuses as $tweet) {
