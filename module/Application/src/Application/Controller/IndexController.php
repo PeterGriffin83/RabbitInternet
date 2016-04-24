@@ -59,8 +59,7 @@ class IndexController extends AbstractActionController
         $key = str_replace(' ', '_', $address);
         $key = str_replace(',', '_', $key);
         $result = $cache->getItem($key, $data);
-        var_dump($address);
-        die();
+
         if (!$data) {
             if($tweetMap->verifyCredentials()) {
                 // Pass Error Message to Front End
