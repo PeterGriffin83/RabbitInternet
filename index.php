@@ -1,5 +1,5 @@
 <?php
 
-  header( 'Location: /rabbitTest/public/' ) ;
+  header( 'Location: public/' ) ;
 
 ?>
