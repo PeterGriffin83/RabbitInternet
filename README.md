@@ -31,7 +31,7 @@ chmod +x fixTwitter.sh
 Now visit the test url <http://thecycletourist.com/rabbitApplication>. 
 
 You should see the following:
-![Example1](http://i.imgur.com/Q4np01j.jpg)
+![Example](http://i.imgur.com/SABuZRf.jpg)
 
 
 ### Compatibility
