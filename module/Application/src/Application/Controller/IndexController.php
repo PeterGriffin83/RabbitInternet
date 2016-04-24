@@ -64,6 +64,7 @@ class IndexController extends AbstractActionController
         }
 
         $markers = $tweetMap->get_GeocodedTweets($address); // Get an Array of GeoCoded Tweets, formatted to be used as Google Maps Markers
+        return new ViewModel(array('map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long(), 'markers' => $markers));
             
     }
 }

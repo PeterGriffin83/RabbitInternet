@@ -6,10 +6,49 @@
               $(function() {
                 $("#map").googleMap({
                   zoom: 10, // Set Zoomlevel to 10
-                  coords: [ 13.7522, 100.4939], // Centre the map on Bangkok for Testing
+                  coords: [<?php echo $this->map_lat . ',' . $this->map_long; ?>], // Centre the map on geocoord provided by Zend
                   type: "ROADMAP" // Map type, set to Roadmap.
                 });
 
+                var errMsg = "<?php echo $this->errorMsg; ?>";
+                if(errMsg!='') {
+                    bootbox.alert(errMsg, function() {
+                    });
+                } else {
+                    var addresses = [];
+                    if(localStorage && localStorage.getItem('addresses')){
+                        addresses = JSON.parse(localStorage.getItem('addresses'));
+                    };
+                    var address = '<?php echo $this->address; ?>';
+                    addresses.push(address);
+                    localStorage.setItem( 'addresses', JSON.stringify(addresses) );
+                    
+                    var markerArray = <?php echo json_encode($this->markers); ?>;
+                    console.log(markerArray);
+                    $.each(markerArray, function(i, v) {
+                        $("#map").addMarker({
+                              coords: [markerArray[i][0],markerArray[i][1]], // GPS coords
+                              icon: markerArray[i][2],
+                              text: markerArray[i][3], 
+                              title:  markerArray[i][4]
+                        }); 
+                    }); 
+                };
+                  
+              $('input#history').click(function() { 
+                     if(localStorage && localStorage.getItem('addresses')){
+                        var formattedAddresses = '';
+                        addresses = JSON.parse(localStorage.getItem('addresses'));
+                        var count=0;
+                         $.each(addresses, function(i, v) {
+                            if(formattedAddresses.indexOf(v)==-1) {
+                                count++;
+                                formattedAddresses += count + ": " + v + '<br />';
+                            }
+                            });
+                        bootbox.alert(formattedAddresses); 
+              };
+              });
                   
               });   
             </script>
