@@ -10,7 +10,16 @@ body{padding-top:0px;
 
 .row { 
     margin: 0px !important; // Override Bootstrap defaults
+}
 
 #map {
     display: none;
+}
+
+#location {
+    position:fixed;
+    z-index:100;
+    left:45%;
+    top:5%;
+    font-size:2em;
 }
