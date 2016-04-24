@@ -51,13 +51,18 @@ class IndexController extends AbstractActionController
         if(empty($address)||$address=='') {
             $address = $tweetMap->get_default_city();
         }
-         
+        
+        // restrict camelcasing, and ensure each word is properly capitalized. ie. San Francisco, not 'san fRanCIsco' 
+        $address = strtolower($address);
+        $address = ucwords($address); 
+        
         /* Caching */
         $cache = $this->getServiceLocator()->get('cache');
 
         // Remove spaces and Commas for the cache key, but retain for the search function ($tweetMap->get_GeocodedTweets()).
         $key = str_replace(' ', '_', $address);
         $key = str_replace(',', '_', $key);
+        $key = strtolower($key); // Ensure key consistency (ie. Bangkok and bangkok should both return from cache).
         $result = $cache->getItem($key, $data);
 
         if (!$data) {
@@ -69,7 +74,7 @@ class IndexController extends AbstractActionController
 
             $markers = $tweetMap->get_GeocodedTweets($address); // Get an Array of GeoCoded Tweets, formatted to be used as Google Maps Markers
             $cache->setItem($key, $markers);
-            return new ViewModel(array('map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long(), 'markers' => $markers));
+            return new ViewModel(array('map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long(), 'markers' => $markers, 'address' => $address));
         } else {
             return new ViewModel(array('map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long(), 'markers' => $result, 'address' => $address));
         }
