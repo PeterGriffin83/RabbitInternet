@@ -3,7 +3,7 @@
     <div class="col-md-12">    
         <div id="map"></div>
             <script type="text/javascript">
-              $(function() {
+              $(document).ready(function() {
                 $("#map").googleMap({
                   zoom: 10, // Set Zoomlevel to 10
                   coords: [<?php echo $this->map_lat . ',' . $this->map_long; ?>], // Centre the map on geocoord provided by Zend
@@ -24,7 +24,6 @@
                     localStorage.setItem( 'addresses', JSON.stringify(addresses) );
                     
                     var markerArray = <?php echo json_encode($this->markers); ?>;
-                    console.log(markerArray);
                     $.each(markerArray, function(i, v) {
                         $("#map").addMarker({
                               coords: [markerArray[i][0],markerArray[i][1]], // GPS coords
@@ -35,23 +34,25 @@
                     }); 
                 };
                   
-              $('input#history').click(function() { 
-                     if(localStorage && localStorage.getItem('addresses')){
-                        var formattedAddresses = '';
+                $('input#history').click(function() { 
+                    if(localStorage && localStorage.getItem('addresses')){
+                        var formattedAddresses = '', count=0;
                         addresses = JSON.parse(localStorage.getItem('addresses'));
-                        var count=0;
-                         $.each(addresses, function(i, v) {
+
+                        $.each(addresses, function(i, v) {
                             if(formattedAddresses.indexOf(v)==-1) {
-                                count++;
                                 formattedAddresses += count + ": " + v + '<br />';
+                                count++;
                             }
-                            });
-                        bootbox.alert(formattedAddresses); 
-              };
-              });
+                        });
+                    } else { 
+                        formattedAddresses = 'No Locations in History';
+                    };
+                    bootbox.alert(formattedAddresses);           
+                });
                   
-              });   
-            </script>
+            });   
+        </script>
         
     </div>
 </div>
