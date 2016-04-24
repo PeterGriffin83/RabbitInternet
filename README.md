@@ -25,8 +25,8 @@ chmod -R 777 data
 
 Run the fixTwitter shell script to fix the 'zendService-twitter' package installed by composer
 ```
-chmod +x twitterFix.sh
-./twitterFix.sh
+chmod +x fixTwitter.sh
+./fixTwitter.sh
 ```
 Now visit the test url <http://thecycletourist.com/rabbitApplication>. 
 
@@ -41,3 +41,20 @@ Tested as working on the following:
 * Firefox (PC)
 * Chrome (PC and Android Tablet (S2) and Phone (A7))
 * Safari (PC)
+
+
+### Configuration Options
+All of the configuration options are available in the config/autoload/global.php file as a series of named Arrays.
+
+```
+* Twitter: In the twitter array you can change the API keys used to access the tweets, as well as the http_client used to 
+  access the tweets. I am using the Zend curl library.
+
+* Defaults: These are parameters that Ihave added into the application (as opposed to the twitter array that is used by the zendservice-twitter library). You can change the search radius and number of tweets displayed here, as well as change the default location to display (Bangkok is the current default)
+
+* Caching: There is a service factory created for caching, and caching is done via the filesystem. You can change this, as well as the cache expiry (ttl) here.
+```
+
+
+
+
