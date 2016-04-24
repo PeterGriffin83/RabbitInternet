@@ -55,6 +55,10 @@ All of the configuration options are available in the config/autoload/global.php
 * Caching: There is a service factory created for caching, and caching is done via the filesystem. You can change this, as well as the cache expiry (ttl) here.
 ```
 
+### LocalStorage
+
+This application uses the localStorage of a users browser to track their history. This does not affect caching of the searched locations, as this is all in PHP, rather just the list of previously searched items. All modern browsers now accept data being written to LocalStorage. 
+
 
 
 
