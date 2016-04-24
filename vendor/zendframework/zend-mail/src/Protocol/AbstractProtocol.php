@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -74,7 +74,7 @@ abstract class AbstractProtocol
      * Log of mail requests and server responses for a session
      * @var array
      */
-    private $log = array();
+    private $log = [];
 
     /**
      * Constructor.
@@ -168,7 +168,7 @@ abstract class AbstractProtocol
      */
     public function resetLog()
     {
-        $this->log = array();
+        $this->log = [];
     }
 
     /**
@@ -305,11 +305,11 @@ abstract class AbstractProtocol
      */
     protected function _expect($code, $timeout = null)
     {
-        $this->response = array();
+        $this->response = [];
         $errMsg = '';
 
         if (!is_array($code)) {
-            $code = array($code);
+            $code = [$code];
         }
 
         do {

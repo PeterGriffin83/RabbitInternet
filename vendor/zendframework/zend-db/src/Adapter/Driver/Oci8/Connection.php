@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -104,15 +104,15 @@ class Connection extends AbstractConnection
         };
 
         // http://www.php.net/manual/en/function.oci-connect.php
-        $username = $findParameterValue(array('username'));
-        $password = $findParameterValue(array('password'));
-        $connectionString = $findParameterValue(array('connection_string', 'connectionstring', 'connection', 'hostname', 'instance'));
-        $characterSet = $findParameterValue(array('character_set', 'charset', 'encoding'));
-        $sessionMode = $findParameterValue(array('session_mode'));
+        $username = $findParameterValue(['username']);
+        $password = $findParameterValue(['password']);
+        $connectionString = $findParameterValue(['connection_string', 'connectionstring', 'connection', 'hostname', 'instance']);
+        $characterSet = $findParameterValue(['character_set', 'charset', 'encoding']);
+        $sessionMode = $findParameterValue(['session_mode']);
 
         // connection modifiers
-        $isUnique = $findParameterValue(array('unique'));
-        $isPersistent = $findParameterValue(array('persistent'));
+        $isUnique = $findParameterValue(['unique']);
+        $isPersistent = $findParameterValue(['persistent']);
 
         if ($isUnique == true) {
             $this->resource = oci_new_connect($username, $password, $connectionString, $characterSet, $sessionMode);

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -12,7 +12,6 @@ namespace Zend\Mail\Transport;
 use Traversable;
 use Zend\Mail;
 use Zend\Mail\Address\AddressInterface;
-use Zend\Mail\Exception;
 use Zend\Mail\Header\HeaderInterface;
 
 /**
@@ -55,7 +54,7 @@ class Sendmail implements TransportInterface
         if ($parameters !== null) {
             $this->setParameters($parameters);
         }
-        $this->callable = array($this, 'mailHandler');
+        $this->callable = [$this, 'mailHandler'];
     }
 
     /**
@@ -64,7 +63,7 @@ class Sendmail implements TransportInterface
      * Used to populate the additional_parameters argument to mail()
      *
      * @param  null|string|array|Traversable $parameters
-     * @throws \Zend\Mail\Exception\InvalidArgumentException
+     * @throws \Zend\Mail\Transport\Exception\InvalidArgumentException
      * @return Sendmail
      */
     public function setParameters($parameters)
@@ -98,7 +97,7 @@ class Sendmail implements TransportInterface
      * Primarily for testing purposes, but could be used to curry arguments.
      *
      * @param  callable $callable
-     * @throws \Zend\Mail\Exception\InvalidArgumentException
+     * @throws \Zend\Mail\Transport\Exception\InvalidArgumentException
      * @return Sendmail
      */
     public function setCallable($callable)
@@ -143,7 +142,7 @@ class Sendmail implements TransportInterface
      * Prepare recipients list
      *
      * @param  \Zend\Mail\Message $message
-     * @throws \Zend\Mail\Exception\RuntimeException
+     * @throws \Zend\Mail\Transport\Exception\RuntimeException
      * @return string
      */
     protected function prepareRecipients(Mail\Message $message)
@@ -166,7 +165,7 @@ class Sendmail implements TransportInterface
         }
 
         // Otherwise, return list of emails
-        $addresses = array();
+        $addresses = [];
         foreach ($list as $address) {
             $addresses[] = $address->getEmail();
         }
@@ -271,11 +270,11 @@ class Sendmail implements TransportInterface
      * @param  string $message
      * @param  string $headers
      * @param  $parameters
-     * @throws \Zend\Mail\Exception\RuntimeException
+     * @throws \Zend\Mail\Transport\Exception\RuntimeException
      */
     public function mailHandler($to, $subject, $message, $headers, $parameters)
     {
-        set_error_handler(array($this, 'handleMailErrors'));
+        set_error_handler([$this, 'handleMailErrors']);
         if ($parameters === null) {
             $result = mail($to, $subject, $message, $headers);
         } else {

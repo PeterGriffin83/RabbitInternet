@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -17,14 +17,14 @@ abstract class Factory
     /**
      * @var array Known transport types
      */
-    protected static $classMap = array(
+    protected static $classMap = [
         'file'      => 'Zend\Mail\Transport\File',
         'inmemory'  => 'Zend\Mail\Transport\InMemory',
         'memory'    => 'Zend\Mail\Transport\InMemory',
         'null'      => 'Zend\Mail\Transport\InMemory',
         'sendmail'  => 'Zend\Mail\Transport\Sendmail',
         'smtp'      => 'Zend\Mail\Transport\Smtp',
-    );
+    ];
 
     /**
      * @param array $spec
@@ -32,7 +32,7 @@ abstract class Factory
      * @throws Exception\InvalidArgumentException
      * @throws Exception\DomainException
      */
-    public static function create($spec = array())
+    public static function create($spec = [])
     {
         if ($spec instanceof Traversable) {
             $spec = ArrayUtils::iteratorToArray($spec);

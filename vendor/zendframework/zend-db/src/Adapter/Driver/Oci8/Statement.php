@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -260,7 +260,7 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
             throw new Exception\RuntimeException($e['message'], $e['code']);
         }
 
-        $result = $this->driver->createResult($this->resource);
+        $result = $this->driver->createResult($this->resource, $this);
         return $result;
     }
 
@@ -311,6 +311,19 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
             }
 
             oci_bind_by_name($this->resource, $name, $value, $maxLength, $type);
+        }
+    }
+
+    /**
+     * Perform a deep clone
+     */
+    public function __clone()
+    {
+        $this->isPrepared = false;
+        $this->parametersBound = false;
+        $this->resource = null;
+        if ($this->parameterContainer) {
+            $this->parameterContainer = clone $this->parameterContainer;
         }
     }
 }

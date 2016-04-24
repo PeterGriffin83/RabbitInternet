@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -20,7 +20,7 @@ class GenericMultiHeader extends GenericHeader implements MultipleHeadersInterfa
         $fieldValue = HeaderWrap::mimeDecodeValue($fieldValue);
 
         if (strpos($fieldValue, ',')) {
-            $headers = array();
+            $headers = [];
             foreach (explode(',', $fieldValue) as $multiValue) {
                 $headers[] = new static($fieldName, $multiValue);
             }
@@ -40,7 +40,7 @@ class GenericMultiHeader extends GenericHeader implements MultipleHeadersInterfa
     public function toStringMultipleHeaders(array $headers)
     {
         $name   = $this->getFieldName();
-        $values = array($this->getFieldValue(HeaderInterface::FORMAT_ENCODED));
+        $values = [$this->getFieldValue(HeaderInterface::FORMAT_ENCODED)];
 
         foreach ($headers as $header) {
             if (! $header instanceof static) {

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -28,33 +28,33 @@ class ParameterContainer implements Iterator, ArrayAccess, Countable
      *
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * @var array
      */
-    protected $positions = array();
+    protected $positions = [];
 
     /**
      * Errata
      *
      * @var array
      */
-    protected $errata = array();
+    protected $errata = [];
 
     /**
      * Max length
      *
      * @var array
      */
-    protected $maxLength = array();
+    protected $maxLength = [];
 
     /**
      * Constructor
      *
      * @param array $data
      */
-    public function __construct(array $data = array())
+    public function __construct(array $data = [])
     {
         if ($data) {
             $this->setFromArray($data);
@@ -158,7 +158,7 @@ class ParameterContainer implements Iterator, ArrayAccess, Countable
      * @param  array $data
      * @return ParameterContainer
      */
-    public function setFromArray(Array $data)
+    public function setFromArray(array $data)
     {
         foreach ($data as $n => $v) {
             $this->offsetSet($n, $v);

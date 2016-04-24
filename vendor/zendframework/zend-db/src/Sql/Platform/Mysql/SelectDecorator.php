@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -41,17 +41,17 @@ class SelectDecorator extends Select implements PlatformDecoratorInterface
     protected function processLimit(PlatformInterface $platform, DriverInterface $driver = null, ParameterContainer $parameterContainer = null)
     {
         if ($this->limit === null && $this->offset !== null) {
-            return array('');
+            return [''];
         }
         if ($this->limit === null) {
             return;
         }
         if ($parameterContainer) {
             $parameterContainer->offsetSet('limit', $this->limit, ParameterContainer::TYPE_INTEGER);
-            return array($driver->formatParameterName('limit'));
+            return [$driver->formatParameterName('limit')];
         }
 
-        return array($this->limit);
+        return [$this->limit];
     }
 
     protected function processOffset(PlatformInterface $platform, DriverInterface $driver = null, ParameterContainer $parameterContainer = null)
@@ -61,9 +61,9 @@ class SelectDecorator extends Select implements PlatformDecoratorInterface
         }
         if ($parameterContainer) {
             $parameterContainer->offsetSet('offset', $this->offset, ParameterContainer::TYPE_INTEGER);
-            return array($driver->formatParameterName('offset'));
+            return [$driver->formatParameterName('offset')];
         }
 
-        return array($this->offset);
+        return [$this->offset];
     }
 }

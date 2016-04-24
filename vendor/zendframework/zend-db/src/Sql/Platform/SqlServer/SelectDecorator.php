@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -59,7 +59,7 @@ class SelectDecorator extends Select implements PlatformDecoratorInterface
         $starSuffix = $platform->getIdentifierSeparator() . self::SQL_STAR;
         foreach ($selectParameters[0] as $i => $columnParameters) {
             if ($columnParameters[0] == self::SQL_STAR || (isset($columnParameters[1]) && $columnParameters[1] == self::SQL_STAR) || strpos($columnParameters[0], $starSuffix)) {
-                $selectParameters[0] = array(array(self::SQL_STAR));
+                $selectParameters[0] = [[self::SQL_STAR]];
                 break;
             }
             if (isset($columnParameters[1])) {
@@ -70,7 +70,7 @@ class SelectDecorator extends Select implements PlatformDecoratorInterface
 
         // first, produce column list without compound names (using the AS portion only)
         array_unshift($sqls, $this->createSqlFromSpecificationAndParameters(
-            array('SELECT %1$s FROM (' => current($this->specifications[self::SELECT])),
+            ['SELECT %1$s FROM (' => current($this->specifications[self::SELECT])],
             $selectParameters
         ));
 
@@ -99,7 +99,7 @@ class SelectDecorator extends Select implements PlatformDecoratorInterface
         }
 
         // add a column for row_number() using the order specification
-        $parameters[self::SELECT][0][] = array('ROW_NUMBER() OVER (' . $orderBy . ')', '[__ZEND_ROW_NUMBER]');
+        $parameters[self::SELECT][0][] = ['ROW_NUMBER() OVER (' . $orderBy . ')', '[__ZEND_ROW_NUMBER]'];
 
         $sqls[self::SELECT] = $this->createSqlFromSpecificationAndParameters(
             $this->specifications[self::SELECT],

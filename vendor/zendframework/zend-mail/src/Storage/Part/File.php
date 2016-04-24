@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -14,8 +14,8 @@ use Zend\Mail\Storage\Part;
 
 class File extends Part
 {
-    protected $contentPos = array();
-    protected $partPos = array();
+    protected $contentPos = [];
+    protected $partPos = [];
     protected $fh;
 
     /**
@@ -76,7 +76,7 @@ class File extends Part
             throw new Exception\RuntimeException('no boundary found in content type to split message');
         }
 
-        $part = array();
+        $part = [];
         $pos = $this->contentPos[0];
         fseek($this->fh, $pos);
         while (!feof($this->fh) && ($endPos === null || $pos < $endPos)) {
@@ -98,7 +98,7 @@ class File extends Part
                     $part[1] = $lastPos;
                     $this->partPos[] = $part;
                 }
-                $part = array($pos);
+                $part = [$pos];
             } elseif ($line == '--' . $boundary . '--') {
                 $part[1] = $lastPos;
                 $this->partPos[] = $part;
@@ -152,7 +152,7 @@ class File extends Part
             throw new Exception\RuntimeException('part not found');
         }
 
-        return new static(array('file' => $this->fh, 'startPos' => $this->partPos[$num][0],
-                              'endPos' => $this->partPos[$num][1]));
+        return new static(['file' => $this->fh, 'startPos' => $this->partPos[$num][0],
+                              'endPos' => $this->partPos[$num][1]]);
     }
 }

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -88,7 +88,7 @@ class Maildir extends Storage\Maildir implements FolderInterface
         if (!$dh) {
             throw new Exception\RuntimeException("can't read folders in maildir", 0, $error);
         }
-        $dirs = array();
+        $dirs = [];
 
         while (($entry = readdir($dh)) !== false) {
             // maildir++ defines folders must start with .
@@ -103,8 +103,8 @@ class Maildir extends Storage\Maildir implements FolderInterface
         closedir($dh);
 
         sort($dirs);
-        $stack = array(null);
-        $folderStack = array(null);
+        $stack = [null];
+        $folderStack = [null];
         $parentFolder = $this->rootFolder;
         $parent = '.';
 

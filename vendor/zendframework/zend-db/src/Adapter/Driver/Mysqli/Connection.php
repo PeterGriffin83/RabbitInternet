@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -104,10 +104,10 @@ class Connection extends AbstractConnection
             return;
         };
 
-        $hostname = $findParameterValue(array('hostname', 'host'));
-        $username = $findParameterValue(array('username', 'user'));
-        $password = $findParameterValue(array('password', 'passwd', 'pw'));
-        $database = $findParameterValue(array('database', 'dbname', 'db', 'schema'));
+        $hostname = $findParameterValue(['hostname', 'host']);
+        $username = $findParameterValue(['username', 'user']);
+        $password = $findParameterValue(['password', 'passwd', 'pw']);
+        $database = $findParameterValue(['database', 'dbname', 'db', 'schema']);
         $port     = (isset($p['port'])) ? (int) $p['port'] : null;
         $socket   = (isset($p['socket'])) ? $p['socket'] : null;
 

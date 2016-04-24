@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -77,7 +77,7 @@ class Connection extends AbstractConnection
             $this->driverName = strtolower($connectionParameters['pdodriver']);
         } elseif (isset($connectionParameters['driver'])) {
             $this->driverName = strtolower(substr(
-                str_replace(array('-', '_', ' '), '', $connectionParameters['driver']),
+                str_replace(['-', '_', ' '], '', $connectionParameters['driver']),
                 3
             ));
         }
@@ -160,7 +160,7 @@ class Connection extends AbstractConnection
         }
 
         $dsn = $username = $password = $hostname = $database = null;
-        $options = array();
+        $options = [];
         foreach ($this->connectionParameters as $key => $value) {
             switch (strtolower($key)) {
                 case 'dsn':
@@ -169,7 +169,7 @@ class Connection extends AbstractConnection
                 case 'driver':
                     $value = strtolower((string) $value);
                     if (strpos($value, 'pdo') === 0) {
-                        $pdoDriver = str_replace(array('-', '_', ' '), '', $value);
+                        $pdoDriver = str_replace(['-', '_', ' '], '', $value);
                         $pdoDriver = substr($pdoDriver, 3) ?: '';
                         $pdoDriver = strtolower($pdoDriver);
                     }
@@ -199,6 +199,9 @@ class Connection extends AbstractConnection
                 case 'charset':
                     $charset    = (string) $value;
                     break;
+                case 'unix_socket':
+                    $unix_socket = (string) $value;
+                    break;
                 case 'driver_options':
                 case 'options':
                     $value = (array) $value;
@@ -210,8 +213,15 @@ class Connection extends AbstractConnection
             }
         }
 
+        if (isset($hostname) && isset($unix_socket)) {
+            throw new Exception\InvalidConnectionParametersException(
+                'Ambiguous connection parameters, both hostname and unix_socket parameters were set',
+                $this->connectionParameters
+            );
+        }
+
         if (!isset($dsn) && isset($pdoDriver)) {
-            $dsn = array();
+            $dsn = [];
             switch ($pdoDriver) {
                 case 'sqlite':
                     $dsn[] = $database;
@@ -236,6 +246,9 @@ class Connection extends AbstractConnection
                     }
                     if (isset($charset) && $pdoDriver != 'pgsql') {
                         $dsn[] = "charset={$charset}";
+                    }
+                    if (isset($unix_socket)) {
+                        $dsn[] = "unix_socket={$unix_socket}";
                     }
                     break;
             }

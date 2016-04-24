@@ -41,14 +41,14 @@ class ReCaptcha extends AbstractAdapter
      *
      * @var array
      */
-    protected $serviceParams = array();
+    protected $serviceParams = [];
 
     /**
      * Options defined by the service
      *
      * @var array
      */
-    protected $serviceOptions = array();
+    protected $serviceOptions = [];
 
     /**#@+
      * Error codes
@@ -62,11 +62,11 @@ class ReCaptcha extends AbstractAdapter
      * Error messages
      * @var array
      */
-    protected $messageTemplates = array(
+    protected $messageTemplates = [
         self::MISSING_VALUE => 'Missing captcha fields',
         self::ERR_CAPTCHA   => 'Failed to validate captcha',
         self::BAD_CAPTCHA   => 'Captcha value is wrong: %value%',
-    );
+    ];
 
     /**
      * Retrieve ReCaptcha Private key
@@ -171,11 +171,11 @@ class ReCaptcha extends AbstractAdapter
     public function setOption($key, $value)
     {
         $service = $this->getService();
-        if (isset($this->serviceParams[$key])) {
+        if (array_key_exists($key, $this->serviceParams)) {
             $service->setParam($key, $value);
             return $this;
         }
-        if (isset($this->serviceOptions[$key])) {
+        if (array_key_exists($key, $this->serviceOptions)) {
             $service->setOption($key, $value);
             return $this;
         }

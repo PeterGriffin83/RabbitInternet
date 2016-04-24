@@ -3,15 +3,15 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
 namespace Zend\Db\Sql;
 
+use Zend\Db\Adapter\Driver\DriverInterface;
 use Zend\Db\Adapter\ParameterContainer;
 use Zend\Db\Adapter\Platform\PlatformInterface;
-use Zend\Db\Adapter\Driver\DriverInterface;
 
 class Insert extends AbstractPreparableSql
 {
@@ -29,16 +29,16 @@ class Insert extends AbstractPreparableSql
     /**
      * @var array Specification array
      */
-    protected $specifications = array(
+    protected $specifications = [
         self::SPECIFICATION_INSERT => 'INSERT INTO %1$s (%2$s) VALUES (%3$s)',
         self::SPECIFICATION_SELECT => 'INSERT INTO %1$s %2$s %3$s',
-    );
+    ];
 
     /**
      * @var string|TableIdentifier
      */
     protected $table            = null;
-    protected $columns          = array();
+    protected $columns          = [];
 
     /**
      * @var array|Select
@@ -106,6 +106,7 @@ class Insert extends AbstractPreparableSql
                 'values() expects an array of values or Zend\Db\Sql\Select instance'
             );
         }
+
         if ($this->select && $flag == self::VALUES_MERGE) {
             throw new Exception\InvalidArgumentException(
                 'An array of values cannot be provided with the merge flag when a Zend\Db\Sql\Select instance already exists as the value source'
@@ -113,13 +114,28 @@ class Insert extends AbstractPreparableSql
         }
 
         if ($flag == self::VALUES_SET) {
-            $this->columns = $values;
+            $this->columns = $this->isAssocativeArray($values)
+                ? $values
+                : array_combine(array_keys($this->columns), array_values($values));
         } else {
-            foreach ($values as $column=>$value) {
+            foreach ($values as $column => $value) {
                 $this->columns[$column] = $value;
             }
         }
         return $this;
+    }
+
+
+    /**
+     * Simple test for an associative array
+     *
+     * @link http://stackoverflow.com/questions/173400/how-to-check-if-php-array-is-associative-or-sequential
+     * @param array $array
+     * @return bool
+     */
+    private function isAssocativeArray(array $array)
+    {
+        return array_keys($array) !== range(0, count($array) - 1);
     }
 
     /**
@@ -141,11 +157,11 @@ class Insert extends AbstractPreparableSql
      */
     public function getRawState($key = null)
     {
-        $rawState = array(
+        $rawState = [
             'table' => $this->table,
             'columns' => array_keys($this->columns),
             'values' => array_values($this->columns)
-        );
+        ];
         return (isset($key) && array_key_exists($key, $rawState)) ? $rawState[$key] : $rawState;
     }
 
@@ -158,9 +174,10 @@ class Insert extends AbstractPreparableSql
             throw new Exception\InvalidArgumentException('values or select should be present');
         }
 
-        $columns = array();
-        $values  = array();
-        foreach ($this->columns as $column=>$value) {
+        $columns = [];
+        $values  = [];
+
+        foreach ($this->columns as $column => $value) {
             $columns[] = $platform->quoteIdentifier($column);
             if (is_scalar($value) && $parameterContainer) {
                 $values[] = $driver->formatParameterName($column);
@@ -189,7 +206,7 @@ class Insert extends AbstractPreparableSql
         }
         $selectSql = $this->processSubSelect($this->select, $platform, $driver, $parameterContainer);
 
-        $columns = array_map(array($platform, 'quoteIdentifier'), array_keys($this->columns));
+        $columns = array_map([$platform, 'quoteIdentifier'], array_keys($this->columns));
         $columns = implode(', ', $columns);
 
         return sprintf(
@@ -226,7 +243,7 @@ class Insert extends AbstractPreparableSql
      */
     public function __unset($name)
     {
-        if (!isset($this->columns[$name])) {
+        if (!array_key_exists($name, $this->columns)) {
             throw new Exception\InvalidArgumentException('The key ' . $name . ' was not found in this objects column list');
         }
 
@@ -243,7 +260,7 @@ class Insert extends AbstractPreparableSql
      */
     public function __isset($name)
     {
-        return isset($this->columns[$name]);
+        return array_key_exists($name, $this->columns);
     }
 
     /**
@@ -257,7 +274,7 @@ class Insert extends AbstractPreparableSql
      */
     public function __get($name)
     {
-        if (!isset($this->columns[$name])) {
+        if (!array_key_exists($name, $this->columns)) {
             throw new Exception\InvalidArgumentException('The key ' . $name . ' was not found in this objects column list');
         }
         return $this->columns[$name];

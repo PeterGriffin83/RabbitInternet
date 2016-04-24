@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -517,6 +517,12 @@ class Message
                 (is_object($emailOrAddressOrList) ? get_class($emailOrAddressOrList) : gettype($emailOrAddressOrList))
             ));
         }
+
+        if (is_string($emailOrAddressOrList) && $name === null) {
+            $addressList->addFromString($emailOrAddressOrList);
+            return;
+        }
+
         $addressList->add($emailOrAddressOrList, $name);
     }
 
@@ -545,7 +551,7 @@ class Message
         $message = new static();
         $headers = null;
         $content = null;
-        Mime\Decode::splitMessage($rawMessage, $headers, $content);
+        Mime\Decode::splitMessage($rawMessage, $headers, $content, Headers::EOL);
         if ($headers->has('mime-version')) {
             // todo - restore body to mime\message
         }

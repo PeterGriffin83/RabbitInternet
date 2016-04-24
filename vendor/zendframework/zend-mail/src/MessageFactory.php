@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -17,7 +17,7 @@ class MessageFactory
      * @param array|Traversable $options
      * @return Message
      */
-    public static function getInstance($options = array())
+    public static function getInstance($options = [])
     {
         if (! is_array($options) && ! $options instanceof Traversable) {
             throw new Exception\InvalidArgumentException(sprintf(
@@ -54,10 +54,10 @@ class MessageFactory
                 ucwords(
                     strtr(
                         $key,
-                        array(
+                        [
                             '-' => ' ',
                             '_' => ' ',
-                        )
+                        ]
                     )
                 )
             );

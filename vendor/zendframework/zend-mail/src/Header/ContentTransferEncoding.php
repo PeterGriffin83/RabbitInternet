@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -16,7 +16,7 @@ class ContentTransferEncoding implements HeaderInterface
      * (reduced set)
      * @var array
      */
-    protected static $allowedTransferEncodings = array(
+    protected static $allowedTransferEncodings = [
         '7bit',
         '8bit',
         'quoted-printable',
@@ -26,7 +26,7 @@ class ContentTransferEncoding implements HeaderInterface
          * not implemented:
          * x-token: 'X-'
          */
-    );
+    ];
 
     /**
      * @var string
@@ -36,7 +36,7 @@ class ContentTransferEncoding implements HeaderInterface
     /**
      * @var array
      */
-    protected $parameters = array();
+    protected $parameters = [];
 
     public static function fromString($headerLine)
     {
@@ -85,7 +85,7 @@ class ContentTransferEncoding implements HeaderInterface
      *
      * @param  string $transferEncoding
      * @throws Exception\InvalidArgumentException
-     * @return self
+     * @return $this
      */
     public function setTransferEncoding($transferEncoding)
     {

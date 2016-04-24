@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -18,6 +18,11 @@ class Connection extends AbstractConnection
      * @var Pgsql
      */
     protected $driver = null;
+
+    /**
+     * @var resource
+     */
+    protected $resource = null;
 
     /**
      * @var null|int PostgreSQL connection type
@@ -37,6 +42,20 @@ class Connection extends AbstractConnection
             $this->setResource($connectionInfo);
         }
     }
+
+    /**
+     * Set resource
+     *
+     * @param resource $resource
+     * @return self
+     */
+    public function setResource($resource)
+    {
+        $this->resource = $resource;
+
+        return $this;
+    }
+
 
     /**
      * Set driver
@@ -104,7 +123,9 @@ class Connection extends AbstractConnection
         $connection = $this->getConnectionString();
         set_error_handler(function ($number, $string) {
             throw new Exception\RuntimeException(
-                __METHOD__ . ': Unable to connect to database', null, new Exception\ErrorException($string, $number)
+                __METHOD__ . ': Unable to connect to database',
+                null,
+                new Exception\ErrorException($string, $number)
             );
         });
         $this->resource = pg_connect($connection);
@@ -115,6 +136,18 @@ class Connection extends AbstractConnection
                 '%s: Unable to connect to database',
                 __METHOD__
             ));
+        }
+
+        $p = $this->connectionParameters;
+
+        if (!empty($p['charset'])) {
+            if (-1 === pg_set_client_encoding($this->resource, $p['charset'])) {
+                throw new Exception\RuntimeException(sprintf(
+                    "%s: Unable to set client encoding '%s'",
+                    __METHOD__,
+                    $p['charset']
+                ));
+            }
         }
 
         return $this;
@@ -261,14 +294,14 @@ class Connection extends AbstractConnection
             return;
         };
 
-        $connectionParameters = array(
-            'host'     => $findParameterValue(array('hostname', 'host')),
-            'user'     => $findParameterValue(array('username', 'user')),
-            'password' => $findParameterValue(array('password', 'passwd', 'pw')),
-            'dbname'   => $findParameterValue(array('database', 'dbname', 'db', 'schema')),
+        $connectionParameters = [
+            'host'     => $findParameterValue(['hostname', 'host']),
+            'user'     => $findParameterValue(['username', 'user']),
+            'password' => $findParameterValue(['password', 'passwd', 'pw']),
+            'dbname'   => $findParameterValue(['database', 'dbname', 'db', 'schema']),
             'port'     => isset($p['port']) ? (int) $p['port'] : null,
             'socket'   => isset($p['socket']) ? $p['socket'] : null,
-        );
+        ];
 
         return urldecode(http_build_query(array_filter($connectionParameters), null, ' '));
     }

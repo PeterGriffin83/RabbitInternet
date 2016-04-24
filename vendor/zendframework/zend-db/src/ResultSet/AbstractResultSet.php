@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -58,11 +58,10 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
     {
         // reset buffering
         if (is_array($this->buffer)) {
-            $this->buffer = array();
+            $this->buffer = [];
         }
 
         if ($dataSource instanceof ResultInterface) {
-            $this->count = $dataSource->count();
             $this->fieldCount = $dataSource->getFieldCount();
             $this->dataSource = $dataSource;
             if ($dataSource->isBuffered()) {
@@ -78,7 +77,6 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
             // its safe to get numbers from an array
             $first = current($dataSource);
             reset($dataSource);
-            $this->count = count($dataSource);
             $this->fieldCount = count($first);
             $this->dataSource = new ArrayIterator($dataSource);
             $this->buffer = -1; // array's are a natural buffer
@@ -90,10 +88,6 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
             throw new Exception\InvalidArgumentException('DataSource provided is not an array, nor does it implement Iterator or IteratorAggregate');
         }
 
-        if ($this->count === null && $this->dataSource instanceof Countable) {
-            $this->count = $this->dataSource->count();
-        }
-
         return $this;
     }
 
@@ -102,7 +96,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
         if ($this->buffer === -2) {
             throw new Exception\RuntimeException('Buffering must be enabled before iteration is started');
         } elseif ($this->buffer === null) {
-            $this->buffer = array();
+            $this->buffer = [];
             if ($this->dataSource instanceof ResultInterface) {
                 $this->dataSource->rewind();
             }
@@ -190,7 +184,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
     /**
      * Iterator: get current item
      *
-     * @return array
+     * @return array|null
      */
     public function current()
     {
@@ -203,7 +197,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
         if (is_array($this->buffer)) {
             $this->buffer[$this->position] = $data;
         }
-        return $data;
+        return is_array($data) ? $data : null;
     }
 
     /**
@@ -251,7 +245,11 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
         if ($this->count !== null) {
             return $this->count;
         }
-        $this->count = count($this->dataSource);
+
+        if ($this->dataSource instanceof Countable) {
+            $this->count = count($this->dataSource);
+        }
+
         return $this->count;
     }
 
@@ -263,7 +261,7 @@ abstract class AbstractResultSet implements Iterator, ResultSetInterface
      */
     public function toArray()
     {
-        $return = array();
+        $return = [];
         foreach ($this as $row) {
             if (is_array($row)) {
                 $return[] = $row;

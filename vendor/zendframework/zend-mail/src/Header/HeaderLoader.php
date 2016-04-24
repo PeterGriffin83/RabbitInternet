@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -19,7 +19,7 @@ class HeaderLoader extends PluginClassLoader
     /**
      * @var array Pre-aliased Header plugins
      */
-    protected $plugins = array(
+    protected $plugins = [
         'bcc'                       => 'Zend\Mail\Header\Bcc',
         'cc'                        => 'Zend\Mail\Header\Cc',
         'contenttype'               => 'Zend\Mail\Header\ContentType',
@@ -41,5 +41,5 @@ class HeaderLoader extends PluginClassLoader
         'sender'                    => 'Zend\Mail\Header\Sender',
         'subject'                   => 'Zend\Mail\Header\Subject',
         'to'                        => 'Zend\Mail\Header\To',
-    );
+    ];
 }

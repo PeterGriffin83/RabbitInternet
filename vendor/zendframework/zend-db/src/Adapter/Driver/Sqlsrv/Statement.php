@@ -4,7 +4,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -45,7 +45,7 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * @var array
      */
-    protected $parameterReferences = array();
+    protected $parameterReferences = [];
 
     /**
      * @var ParameterContainer
@@ -66,12 +66,12 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
     /**
      * @var array
      */
-    protected $prepareParams = array();
+    protected $prepareParams = [];
 
     /**
      * @var array
      */
-    protected $prepareOptions = array();
+    protected $prepareOptions = [];
 
     /**
      * Set driver
@@ -196,7 +196,7 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
      * @throws Exception\RuntimeException
      * @return Statement
      */
-    public function prepare($sql = null, array $options = array())
+    public function prepare($sql = null, array $options = [])
     {
         if ($this->isPrepared) {
             throw new Exception\RuntimeException('Already prepared');
@@ -207,7 +207,7 @@ class Statement implements StatementInterface, Profiler\ProfilerAwareInterface
         $pRef = &$this->parameterReferences;
         for ($position = 0, $count = substr_count($sql, '?'); $position < $count; $position++) {
             if (!isset($this->prepareParams[$position])) {
-                $pRef[$position] = array('', SQLSRV_PARAM_IN, null, null);
+                $pRef[$position] = ['', SQLSRV_PARAM_IN, null, null];
             } else {
                 $pRef[$position] = &$this->prepareParams[$position];
             }

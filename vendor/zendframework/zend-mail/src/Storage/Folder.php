@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -45,7 +45,7 @@ class Folder implements RecursiveIterator
      * @param bool   $selectable if true folder holds messages, if false it's just a parent for subfolders (Default: true)
      * @param array  $folders    init with given instances of \Zend\Mail\Storage\Folder as subfolders
      */
-    public function __construct($localName, $globalName = '', $selectable = true, array $folders = array())
+    public function __construct($localName, $globalName = '', $selectable = true, array $folders = [])
     {
         $this->localName  = $localName;
         $this->globalName = $globalName ? $globalName : $localName;

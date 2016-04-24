@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -292,7 +292,7 @@ class Filesystem extends AbstractAdapter implements
         }
 
         $filespec = $this->getFileSpec($key);
-        $tags     = array();
+        $tags     = [];
         if (file_exists($filespec . '.tag')) {
             $tags = explode("\n", $this->getFileContent($filespec . '.tag'));
         }
@@ -328,7 +328,16 @@ class Filesystem extends AbstractAdapter implements
         $glob = new GlobIterator($path, $flags);
 
         foreach ($glob as $pathname) {
-            $diff = array_diff($tags, explode("\n", $this->getFileContent($pathname)));
+            try {
+                $diff = array_diff($tags, explode("\n", $this->getFileContent($pathname)));
+            } catch (Exception\RuntimeException $exception) {
+                // ignore missing files because of possible raise conditions
+                // e.g. another process already deleted that item
+                if (!file_exists($pathname)) {
+                    continue;
+                }
+                throw $exception;
+            }
 
             $rem  = false;
             if ($disjunction && count($diff) < $tagCount) {
@@ -545,7 +554,7 @@ class Filesystem extends AbstractAdapter implements
     protected function internalGetItems(array & $normalizedKeys)
     {
         $keys    = $normalizedKeys; // Don't change argument passed by reference
-        $result  = array();
+        $result  = [];
         while ($keys) {
             // LOCK_NB if more than one items have to read
             $nonBlocking = count($keys) > 1;
@@ -672,7 +681,7 @@ class Filesystem extends AbstractAdapter implements
      * @param array $options
      * @return array Associative array of keys and metadata
      */
-    public function getMetadatas(array $keys, array $options = array())
+    public function getMetadatas(array $keys, array $options = [])
     {
         $options = $this->getOptions();
         if ($options->getReadable() && $options->getClearStatCache()) {
@@ -698,10 +707,10 @@ class Filesystem extends AbstractAdapter implements
         $filespec = $this->getFileSpec($normalizedKey);
         $file     = $filespec . '.dat';
 
-        $metadata = array(
+        $metadata = [
             'filespec' => $filespec,
             'mtime'    => filemtime($file)
-        );
+        ];
 
         if (!$options->getNoCtime()) {
             $metadata['ctime'] = filectime($file);
@@ -724,16 +733,16 @@ class Filesystem extends AbstractAdapter implements
     protected function internalGetMetadatas(array & $normalizedKeys)
     {
         $options = $this->getOptions();
-        $result  = array();
+        $result  = [];
 
         foreach ($normalizedKeys as $normalizedKey) {
             $filespec = $this->getFileSpec($normalizedKey);
             $file     = $filespec . '.dat';
 
-            $metadata = array(
+            $metadata = [
                 'filespec' => $filespec,
                 'mtime'    => filemtime($file),
-            );
+            ];
 
             if (!$options->getNoCtime()) {
                 $metadata['ctime'] = filectime($file);
@@ -917,7 +926,7 @@ class Filesystem extends AbstractAdapter implements
     protected function internalSetItems(array & $normalizedKeyValuePairs)
     {
         // create an associated array of files and contents to write
-        $contents = array();
+        $contents = [];
         foreach ($normalizedKeyValuePairs as $key => & $value) {
             $filespec = $this->getFileSpec($key);
             $this->prepareDirectoryStructure($filespec);
@@ -943,7 +952,7 @@ class Filesystem extends AbstractAdapter implements
         }
 
         // return OK
-        return array();
+        return [];
     }
 
     /**
@@ -1139,7 +1148,7 @@ class Filesystem extends AbstractAdapter implements
             $options = $this->getOptions();
 
             // detect metadata
-            $metadata = array('mtime', 'filespec');
+            $metadata = ['mtime', 'filespec'];
             if (!$options->getNoAtime()) {
                 $metadata[] = 'atime';
             }
@@ -1150,8 +1159,8 @@ class Filesystem extends AbstractAdapter implements
             $capabilities = new Capabilities(
                 $this,
                 $marker,
-                array(
-                    'supportedDatatypes' => array(
+                [
+                    'supportedDatatypes' => [
                         'NULL'     => 'string',
                         'boolean'  => 'string',
                         'integer'  => 'string',
@@ -1160,7 +1169,7 @@ class Filesystem extends AbstractAdapter implements
                         'array'    => false,
                         'object'   => false,
                         'resource' => false,
-                    ),
+                    ],
                     'supportedMetadata'  => $metadata,
                     'minTtl'             => 1,
                     'maxTtl'             => 0,
@@ -1170,7 +1179,7 @@ class Filesystem extends AbstractAdapter implements
                     'maxKeyLength'       => 251, // 255 - strlen(.dat | .tag)
                     'namespaceIsPrefix'  => true,
                     'namespaceSeparator' => $options->getNamespaceSeparator(),
-                )
+                ]
             );
 
             // update capabilities on change options
@@ -1275,36 +1284,6 @@ class Filesystem extends AbstractAdapter implements
     }
 
     /**
-     * Read info file
-     *
-     * @param  string  $file
-     * @param  bool $nonBlocking Don't block script if file is locked
-     * @param  bool $wouldblock  The optional argument is set to TRUE if the lock would block
-     * @return array|bool The info array or false if file wasn't found
-     * @throws Exception\RuntimeException
-     */
-    protected function readInfoFile($file, $nonBlocking = false, & $wouldblock = null)
-    {
-        if (!file_exists($file)) {
-            return false;
-        }
-
-        $content = $this->getFileContent($file, $nonBlocking, $wouldblock);
-        if ($nonBlocking && $wouldblock) {
-            return false;
-        }
-
-        ErrorHandler::start();
-        $ifo = unserialize($content);
-        $err = ErrorHandler::stop();
-        if (!is_array($ifo)) {
-            throw new Exception\RuntimeException("Corrupted info file '{$file}'", 0, $err);
-        }
-
-        return $ifo;
-    }
-
-    /**
      * Read a complete file
      *
      * @param  string  $file        File complete path
@@ -1405,7 +1384,7 @@ class Filesystem extends AbstractAdapter implements
             // build-in mkdir function is enough
 
             $umask = ($umask !== false) ? umask($umask) : false;
-            $res   = mkdir($pathname, ($perm !== false) ? $perm : 0777, true);
+            $res   = mkdir($pathname, ($perm !== false) ? $perm : 0775, true);
 
             if ($umask !== false) {
                 umask($umask);
@@ -1421,7 +1400,7 @@ class Filesystem extends AbstractAdapter implements
                     return;
                 }
 
-                $oct = ($perm === false) ? '777' : decoct($perm);
+                $oct = ($perm === false) ? '775' : decoct($perm);
                 throw new Exception\RuntimeException("mkdir('{$pathname}', 0{$oct}, true) failed", 0, $err);
             }
 
@@ -1436,7 +1415,7 @@ class Filesystem extends AbstractAdapter implements
             // -> create directories one by one and set permissions
 
             // find existing path and missing path parts
-            $parts = array();
+            $parts = [];
             $path  = $pathname;
             while (!file_exists($path)) {
                 array_unshift($parts, basename($path));
@@ -1453,7 +1432,7 @@ class Filesystem extends AbstractAdapter implements
 
                 // create a single directory, set and reset umask immediately
                 $umask = ($umask !== false) ? umask($umask) : false;
-                $res   = mkdir($path, ($perm === false) ? 0777 : $perm, false);
+                $res   = mkdir($path, ($perm === false) ? 0775 : $perm, false);
                 if ($umask !== false) {
                     umask($umask);
                 }
@@ -1466,7 +1445,7 @@ class Filesystem extends AbstractAdapter implements
                         continue;
                     }
 
-                    $oct = ($perm === false) ? '777' : decoct($perm);
+                    $oct = ($perm === false) ? '775' : decoct($perm);
                     ErrorHandler::stop();
                     throw new Exception\RuntimeException(
                         "mkdir('{$path}', 0{$oct}, false) failed"

@@ -11,6 +11,7 @@ namespace Zend\Validator;
 
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
+use Zend\ServiceManager\ServiceManager;
 
 class Explode extends AbstractValidator implements ValidatorPluginManagerAwareInterface
 {
@@ -21,14 +22,14 @@ class Explode extends AbstractValidator implements ValidatorPluginManagerAwareIn
     /**
      * @var array
      */
-    protected $messageTemplates = array(
+    protected $messageTemplates = [
         self::INVALID => "Invalid type given",
-    );
+    ];
 
     /**
      * @var array
      */
-    protected $messageVariables = array();
+    protected $messageVariables = [];
 
     /**
      * @var string
@@ -85,7 +86,7 @@ class Explode extends AbstractValidator implements ValidatorPluginManagerAwareIn
     public function getValidatorPluginManager()
     {
         if (!$this->pluginManager) {
-            $this->setValidatorPluginManager(new ValidatorPluginManager());
+            $this->setValidatorPluginManager(new ValidatorPluginManager(new ServiceManager));
         }
 
         return $this->pluginManager;
@@ -107,7 +108,7 @@ class Explode extends AbstractValidator implements ValidatorPluginManagerAwareIn
                 );
             }
             $name = $validator['name'];
-            $options = isset($validator['options']) ? $validator['options'] : array();
+            $options = isset($validator['options']) ? $validator['options'] : [];
             $validator = $this->getValidatorPluginManager()->get($name, $options);
         }
 
@@ -181,9 +182,9 @@ class Explode extends AbstractValidator implements ValidatorPluginManagerAwareIn
             // single values (ie. MultiCheckbox form behavior)
             $values = (null !== $delimiter)
                       ? explode($this->valueDelimiter, $value)
-                      : array($value);
+                      : [$value];
         } else {
-            $values = array($value);
+            $values = [$value];
         }
 
         $validator = $this->getValidator();

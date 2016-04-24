@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -35,10 +35,10 @@ class Operator extends AbstractExpression implements PredicateInterface
     /**
      * {@inheritDoc}
      */
-    protected $allowedTypes  = array(
+    protected $allowedTypes  = [
         self::TYPE_IDENTIFIER,
         self::TYPE_VALUE,
-    );
+    ];
 
     /**
      * @var int|float|bool|string
@@ -261,10 +261,10 @@ class Operator extends AbstractExpression implements PredicateInterface
         list($values[], $types[]) = $this->normalizeArgument($this->left, $this->leftType);
         list($values[], $types[]) = $this->normalizeArgument($this->right, $this->rightType);
 
-        return array(array(
+        return [[
             '%s ' . $this->operator . ' %s',
             $values,
             $types
-        ));
+        ]];
     }
 }

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -136,12 +136,12 @@ class Between extends AbstractExpression implements PredicateInterface
         list($values[], $types[]) = $this->normalizeArgument($this->identifier, self::TYPE_IDENTIFIER);
         list($values[], $types[]) = $this->normalizeArgument($this->minValue,   self::TYPE_VALUE);
         list($values[], $types[]) = $this->normalizeArgument($this->maxValue,   self::TYPE_VALUE);
-        return array(
-            array(
+        return [
+            [
                 $this->getSpecification(),
                 $values,
                 $types,
-            ),
-        );
+            ],
+        ];
     }
 }

@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -30,28 +30,34 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
     protected $currentFolder = '';
 
     /**
+     * IMAP folder delimiter character
+     * @var null|string
+     */
+    protected $delimiter;
+
+    /**
      * IMAP flags to constants translation
      * @var array
      */
-    protected static $knownFlags = array('\Passed'   => Mail\Storage::FLAG_PASSED,
+    protected static $knownFlags = ['\Passed'   => Mail\Storage::FLAG_PASSED,
                                           '\Answered' => Mail\Storage::FLAG_ANSWERED,
                                           '\Seen'     => Mail\Storage::FLAG_SEEN,
                                           '\Unseen'   => Mail\Storage::FLAG_UNSEEN,
                                           '\Deleted'  => Mail\Storage::FLAG_DELETED,
                                           '\Draft'    => Mail\Storage::FLAG_DRAFT,
-                                          '\Flagged'  => Mail\Storage::FLAG_FLAGGED);
+                                          '\Flagged'  => Mail\Storage::FLAG_FLAGGED];
 
     /**
      * IMAP flags to search criteria
      * @var array
      */
-    protected static $searchFlags = array('\Recent'   => 'RECENT',
+    protected static $searchFlags = ['\Recent'   => 'RECENT',
                                            '\Answered' => 'ANSWERED',
                                            '\Seen'     => 'SEEN',
                                            '\Unseen'   => 'UNSEEN',
                                            '\Deleted'  => 'DELETED',
                                            '\Draft'    => 'DRAFT',
-                                           '\Flagged'  => 'FLAGGED');
+                                           '\Flagged'  => 'FLAGGED'];
 
     /**
      * Count messages all messages in current box
@@ -68,10 +74,10 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
         }
 
         if ($flags === null) {
-            return count($this->protocol->search(array('ALL')));
+            return count($this->protocol->search(['ALL']));
         }
 
-        $params = array();
+        $params = [];
         foreach ((array) $flags as $flag) {
             if (isset(static::$searchFlags[$flag])) {
                 $params[] = static::$searchFlags[$flag];
@@ -107,15 +113,15 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
      */
     public function getMessage($id)
     {
-        $data = $this->protocol->fetch(array('FLAGS', 'RFC822.HEADER'), $id);
+        $data = $this->protocol->fetch(['FLAGS', 'RFC822.HEADER'], $id);
         $header = $data['RFC822.HEADER'];
 
-        $flags = array();
+        $flags = [];
         foreach ($data['FLAGS'] as $flag) {
             $flags[] = isset(static::$knownFlags[$flag]) ? static::$knownFlags[$flag] : $flag;
         }
 
-        return new $this->messageClass(array('handler' => $this, 'id' => $id, 'headers' => $header, 'flags' => $flags));
+        return new $this->messageClass(['handler' => $this, 'id' => $id, 'headers' => $header, 'flags' => $flags]);
     }
 
     /*
@@ -241,7 +247,7 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
      */
     public function removeMessage($id)
     {
-        if (!$this->protocol->store(array(Mail\Storage::FLAG_DELETED), $id, null, '+')) {
+        if (!$this->protocol->store([Mail\Storage::FLAG_DELETED], $id, null, '+')) {
             throw new Exception\RuntimeException('cannot set deleted flag');
         }
         // TODO: expunge here or at close? we can handle an error here better and are more fail safe
@@ -309,8 +315,8 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
 
         ksort($folders, SORT_STRING);
         $root = new Folder('/', '/', false);
-        $stack = array(null);
-        $folderStack = array(null);
+        $stack = [null];
+        $folderStack = [null];
         $parentFolder = $root;
         $parent = '';
 
@@ -331,6 +337,7 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
                     $parentFolder->$localName = $folder;
                     array_push($folderStack, $parentFolder);
                     $parentFolder = $folder;
+                    $this->delimiter = $data['delim'];
                     break;
                 } elseif ($stack) {
                     $parent = array_pop($stack);
@@ -451,7 +458,7 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
         }
 
         if ($flags === null) {
-            $flags = array(Mail\Storage::FLAG_SEEN);
+            $flags = [Mail\Storage::FLAG_SEEN];
         }
 
         // TODO: handle class instances for $message
@@ -503,5 +510,18 @@ class Imap extends AbstractStorage implements Folder\FolderInterface, Writable\W
         if (!$this->protocol->store($flags, $id)) {
             throw new Exception\RuntimeException('cannot set flags, have you tried to set the recent flag or special chars?');
         }
+    }
+
+    /**
+     * get IMAP delimiter
+     *
+     * @return string|null
+     */
+    public function delimiter()
+    {
+        if (!isset($this->delimiter)) {
+            $this->getFolders();
+        }
+        return $this->delimiter;
     }
 }

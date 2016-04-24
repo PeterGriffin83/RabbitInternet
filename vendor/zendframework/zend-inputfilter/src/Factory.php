@@ -10,12 +10,11 @@
 namespace Zend\InputFilter;
 
 use Traversable;
-use Zend\Filter\Exception;
 use Zend\Filter\FilterChain;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
-use Zend\Validator\ValidatorInterface;
 use Zend\Validator\ValidatorChain;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\Validator\ValidatorInterface;
 
 class Factory
 {
@@ -118,15 +117,7 @@ class Factory
     public function setInputFilterManager(InputFilterPluginManager $inputFilterManager)
     {
         $this->inputFilterManager = $inputFilterManager;
-        $serviceLocator = $this->inputFilterManager->getServiceLocator();
-        if ($serviceLocator && $serviceLocator instanceof ServiceLocatorInterface) {
-            if ($serviceLocator->has('ValidatorManager')) {
-                $this->getDefaultValidatorChain()->setPluginManager($serviceLocator->get('ValidatorManager'));
-            }
-            if ($serviceLocator->has('FilterManager')) {
-                $this->getDefaultFilterChain()->setPluginManager($serviceLocator->get('FilterManager'));
-            }
-        }
+        $inputFilterManager->populateFactoryPluginManagers($this);
         return $this;
     }
 
@@ -136,7 +127,7 @@ class Factory
     public function getInputFilterManager()
     {
         if (null === $this->inputFilterManager) {
-            $this->inputFilterManager = new InputFilterPluginManager;
+            $this->inputFilterManager = new InputFilterPluginManager(new ServiceManager());
         }
 
         return $this->inputFilterManager;
@@ -167,23 +158,24 @@ class Factory
             $inputSpecification = ArrayUtils::iteratorToArray($inputSpecification);
         }
 
-        $class = 'Zend\InputFilter\Input';
+        $class = Input::class;
 
         if (isset($inputSpecification['type'])) {
             $class = $inputSpecification['type'];
-
-            if ($this->getInputFilterManager()->has($class)) {
-                return $this->createInputFilter($inputSpecification);
-            }
-
-            if (!class_exists($class)) {
-                throw new Exception\RuntimeException(sprintf(
-                    'Input factory expects the "type" to be a valid class; received "%s"',
-                    $class
-                ));
-            }
         }
-        $input = new $class();
+
+        $managerInstance = null;
+        if ($this->getInputFilterManager()->has($class)) {
+            $managerInstance = $this->getInputFilterManager()->get($class);
+        }
+        if (!$managerInstance && !class_exists($class)) {
+            throw new Exception\RuntimeException(sprintf(
+                'Input factory expects the "type" to be a valid class or a plugin name; received "%s"',
+                $class
+            ));
+        }
+
+        $input = $managerInstance ?: new $class();
 
         if ($input instanceof InputFilterInterface) {
             return $this->createInputFilter($inputSpecification);
@@ -192,7 +184,7 @@ class Factory
         if (!$input instanceof InputInterface) {
             throw new Exception\RuntimeException(sprintf(
                 'Input factory expects the "type" to be a class implementing %s; received "%s"',
-                'Zend\InputFilter\InputInterface',
+                InputInterface::class,
                 $class
             ));
         }
@@ -211,9 +203,6 @@ class Factory
                     break;
                 case 'required':
                     $input->setRequired($value);
-                    if (isset($inputSpecification['allow_empty'])) {
-                        $input->setAllowEmpty($inputSpecification['allow_empty']);
-                    }
                     break;
                 case 'allow_empty':
                     $input->setAllowEmpty($value);
@@ -222,12 +211,26 @@ class Factory
                     }
                     break;
                 case 'continue_if_empty':
+                    if (!$input instanceof Input) {
+                        throw new Exception\RuntimeException(sprintf(
+                            '%s "continue_if_empty" can only set to inputs of type "%s"',
+                            __METHOD__,
+                            Input::class
+                        ));
+                    }
                     $input->setContinueIfEmpty($inputSpecification['continue_if_empty']);
                     break;
                 case 'error_message':
                     $input->setErrorMessage($value);
                     break;
                 case 'fallback_value':
+                    if (!$input instanceof Input) {
+                        throw new Exception\RuntimeException(sprintf(
+                            '%s "fallback_value" can only set to inputs of type "%s"',
+                            __METHOD__,
+                            Input::class
+                        ));
+                    }
                     $input->setFallbackValue($value);
                     break;
                 case 'break_on_failure':
@@ -295,7 +298,7 @@ class Factory
             $inputFilterSpecification = ArrayUtils::iteratorToArray($inputFilterSpecification);
         }
 
-        $type = 'Zend\InputFilter\InputFilter';
+        $type = InputFilter::class;
 
         if (isset($inputFilterSpecification['type']) && is_string($inputFilterSpecification['type'])) {
             $type = $inputFilterSpecification['type'];
@@ -326,12 +329,28 @@ class Factory
             if (($value instanceof InputInterface)
                 || ($value instanceof InputFilterInterface)
             ) {
-                $input = $value;
-            } else {
-                $input = $this->createInput($value);
+                $inputFilter->add($value, $key);
+                continue;
             }
 
-            $inputFilter->add($input, $key);
+            // Patch to enable nested, integer indexed input_filter_specs.
+            // Check type and name are in spec, and that composed type is
+            // an input filter...
+            if ((isset($value['type']) && is_string($value['type']))
+                && (isset($value['name']) && is_string($value['name']))
+                && $this->getInputFilterManager()->get($value['type']) instanceof InputFilter
+            ) {
+                // If $key is an integer, reset it to the specified name.
+                if (is_integer($key)) {
+                    $key = $value['name'];
+                }
+
+                // Remove name from specification. InputFilter doesn't have a
+                // name property!
+                unset($value['name']);
+            }
+
+            $inputFilter->add($this->createInput($value), $key);
         }
 
         return $inputFilter;
@@ -359,7 +378,7 @@ class Factory
                 }
                 $name = $filter['name'];
                 $priority = isset($filter['priority']) ? $filter['priority'] : FilterChain::DEFAULT_PRIORITY;
-                $options = array();
+                $options = [];
                 if (isset($filter['options'])) {
                     $options = $filter['options'];
                 }
@@ -375,7 +394,7 @@ class Factory
 
     /**
      * @param  ValidatorChain    $chain
-     * @param  array|Traversable $validators
+     * @param  string[]|ValidatorInterface[] $validators
      * @throws Exception\RuntimeException
      * @return void
      */
@@ -394,7 +413,7 @@ class Factory
                     );
                 }
                 $name    = $validator['name'];
-                $options = array();
+                $options = [];
                 if (isset($validator['options'])) {
                     $options = $validator['options'];
                 }

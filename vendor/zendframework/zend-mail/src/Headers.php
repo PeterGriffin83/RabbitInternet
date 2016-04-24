@@ -3,7 +3,7 @@
  * Zend Framework (http://framework.zend.com/)
  *
  * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2005-2016 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
@@ -36,12 +36,12 @@ class Headers implements Countable, Iterator
     /**
      * @var array key names for $headers array
      */
-    protected $headersKeys = array();
+    protected $headersKeys = [];
 
     /**
      * @var  Header\HeaderInterface[] instances
      */
-    protected $headers = array();
+    protected $headers = [];
 
     /**
      * Header encoding; defaults to ASCII
@@ -107,7 +107,7 @@ class Headers implements Countable, Iterator
 
             // Line does not match header format!
             throw new Exception\RuntimeException(sprintf(
-                'Line "%s"does not match header format!',
+                'Line "%s" does not match header format!',
                 $line
             ));
         }
@@ -292,7 +292,7 @@ class Headers implements Countable, Iterator
      */
     public function clearHeaders()
     {
-        $this->headers = $this->headersKeys = array();
+        $this->headers = $this->headersKeys = [];
         return $this;
     }
 
@@ -307,7 +307,7 @@ class Headers implements Countable, Iterator
     public function get($name)
     {
         $key = $this->normalizeFieldName($name);
-        $results = array();
+        $results = [];
 
         foreach (array_keys($this->headersKeys, $key) as $index) {
             if ($this->headers[$index] instanceof Header\GenericHeader) {
@@ -430,22 +430,23 @@ class Headers implements Countable, Iterator
     /**
      * Return the headers container as an array
      *
-     * @todo determine how to produce single line headers, if they are supported
+     * @param  bool $format Return the values in Mime::Encoded or in Raw format
      * @return array
+     * @todo determine how to produce single line headers, if they are supported
      */
-    public function toArray()
+    public function toArray($format = Header\HeaderInterface::FORMAT_RAW)
     {
-        $headers = array();
+        $headers = [];
         /* @var $header Header\HeaderInterface */
         foreach ($this->headers as $header) {
             if ($header instanceof Header\MultipleHeadersInterface) {
                 $name = $header->getFieldName();
                 if (!isset($headers[$name])) {
-                    $headers[$name] = array();
+                    $headers[$name] = [];
                 }
-                $headers[$name][] = $header->getFieldValue();
+                $headers[$name][] = $header->getFieldValue($format);
             } else {
-                $headers[$header->getFieldName()] = $header->getFieldValue();
+                $headers[$header->getFieldName()] = $header->getFieldValue($format);
             }
         }
         return $headers;
@@ -503,6 +504,6 @@ class Headers implements Countable, Iterator
      */
     protected function normalizeFieldName($fieldName)
     {
-        return str_replace(array('-', '_', ' ', '.'), '', strtolower($fieldName));
+        return str_replace(['-', '_', ' ', '.'], '', strtolower($fieldName));
     }
 }
