@@ -32,6 +32,7 @@ class Module
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+                    'RabbitInternet' => __DIR__ .'/../../vendor/RabbitInternet'
                 ),
             ),
         );
