@@ -51,20 +51,29 @@ class IndexController extends AbstractActionController
         if(empty($address)||$address=='') {
             $address = $tweetMap->get_default_city();
         }
-        
-        if (strpos($address, ',') !== false) {
-            $address = explode(',', $address)[0];
-        };
+         
+        /* Caching */
+        $cache = $this->getServiceLocator()->get('cache');
 
-        
-        if($tweetMap->verifyCredentials()) {
-            // Pass Error Message to Front End
-            // Alternative display message here. Up to specific use case.
-            return new ViewModel(array('errorMsg' => $tweetMap->verifyCredentials(),'map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long()));
+        // Remove spaces and Commas for the cache key, but retain for the search function ($tweetMap->get_GeocodedTweets()).
+        $key = str_replace(' ', '_', $address);
+        $key = str_replace(',', '_', $key);
+        $result = $cache->getItem($key, $data);
+        var_dump($address);
+        die();
+        if (!$data) {
+            if($tweetMap->verifyCredentials()) {
+                // Pass Error Message to Front End
+                // Alternative display message here. Up to specific use case.
+                return new ViewModel(array('errorMsg' => $tweetMap->verifyCredentials(),'map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long()));
+            }
+
+            $markers = $tweetMap->get_GeocodedTweets($address); // Get an Array of GeoCoded Tweets, formatted to be used as Google Maps Markers
+            $cache->setItem($key, $markers);
+            return new ViewModel(array('map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long(), 'markers' => $markers));
+        } else {
+            return new ViewModel(array('map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long(), 'markers' => $result, 'address' => $address));
         }
-
-        $markers = $tweetMap->get_GeocodedTweets($address); // Get an Array of GeoCoded Tweets, formatted to be used as Google Maps Markers
-        return new ViewModel(array('map_lat' => $tweetMap->get_map_lat(), 'map_long' => $tweetMap->get_map_long(), 'markers' => $markers));
             
     }
 }
