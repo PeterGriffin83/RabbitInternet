@@ -18,8 +18,47 @@ body{padding-top:0px;
 
 #location {
     position:fixed;
-    z-index:100;
-    left:45%;
-    top:5%;
-    font-size:2em;
+    z-index:1000;
+    top: 5%;
+}
+
+#stickybar {
+    position:fixed;
+    bottom:0;
+    width:100%;
+}
+
+@media only screen and (max-width: 549px) {
+    #location {
+        left:5%;
+        font-size:1.3em;
+    }
+}
+
+@media only screen and (min-width: 550px) {
+    #location {
+        left:20%;
+        font-size:1.5em;
+    }
+}
+
+@media only screen and (min-width: 700px) {
+    #location {
+        left:25%;
+        font-size:1.7em;
+    }
+}
+
+@media only screen and (min-width: 1000px) {
+    #location {
+        left:35%;
+        font-size:1.7em;
+    }
+}
+
+@media only screen and (min-width: 1600px) {
+    #location {
+        left:40%;
+        font-size:2em;
+    }
 }
